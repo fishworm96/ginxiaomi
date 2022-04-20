@@ -2,13 +2,14 @@ package routers
 
 import (
 	"ginxiaomi/controllers/admin"
+	"ginxiaomi/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
 
 func AdminRoutersInit(r *gin.Engine) {
 	//middlewares.InitMiddleware中间件
-	adminRouters := r.Group("/admin")
+	adminRouters := r.Group("/admin", middlewares.InitAdminAuthMiddleware)
 	{
 		adminRouters.GET("/", admin.MainController{}.Index)
 		adminRouters.GET("/welcome", admin.MainController{}.Welcome)
@@ -29,5 +30,12 @@ func AdminRoutersInit(r *gin.Engine) {
 		adminRouters.GET("/focus/delete", admin.FocusController{}.Delete)
 
 		adminRouters.GET("/access", admin.AccessController{}.Index)
+
+		adminRouters.GET("/role", admin.RoleController{}.Index)
+		adminRouters.GET("/role/add", admin.RoleController{}.Add)
+		adminRouters.GET("/role/edit", admin.RoleController{}.Edit)
+		adminRouters.POST("/role/doAdd", admin.RoleController{}.DoAdd)
+		adminRouters.POST("/role/doEdit", admin.RoleController{}.DoEdit)
+		adminRouters.GET("/role/delete", admin.RoleController{}.Delete)
 	}
 }
