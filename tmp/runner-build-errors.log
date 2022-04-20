@@ -1,2 +1,0 @@
-# ginxiaomi/controllers/admin
-controllers\admin\manager.go:6:2: imported and not used: "strings"
