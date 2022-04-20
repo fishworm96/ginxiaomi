@@ -5,6 +5,7 @@ type Manager struct {
 	Username string
 	Password string
 	Mobile string
+	Email string
 	Status int
 	RoleId int
 	AddTime int
