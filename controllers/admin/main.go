@@ -48,7 +48,7 @@ func (con MainController) Index(c *gin.Context) {
 		// }
 
 		fmt.Printf("%#v", accessList)
-		c.HTML(http.StatusOK, "admin/mian/index.html", gin.H{
+		c.HTML(http.StatusOK, "admin/main/index.html", gin.H{
 			"username": userinfoStruct[0].Username,
 			"accessList": accessList,
 			"isSuper": userinfoStruct[0].IsSuper,

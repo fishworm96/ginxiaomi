@@ -32,6 +32,9 @@ func AdminRoutersInit(r *gin.Engine) {
 		adminRouters.GET("/focus/delete", admin.FocusController{}.Delete)
 
 		adminRouters.GET("/access", admin.AccessController{}.Index)
+		adminRouters.GET("/access/add", admin.AccessController{}.Add)
+		adminRouters.POST("/access/doAdd", admin.AccessController{}.DoAdd)
+		adminRouters.GET("/access/edit", admin.AccessController{}.Edit)
 
 		adminRouters.GET("/role", admin.RoleController{}.Index)
 		adminRouters.GET("/role/add", admin.RoleController{}.Add)
