@@ -122,5 +122,12 @@ func (con ManagerController) DoEdit(c *gin.Context) {
 }
 
 func (con ManagerController) Delete(c *gin.Context) {
-	c.String(http.StatusOK, "-add--文章-")
+	id, err := models.Int(c.Query("id"))
+	if err != nil {
+		con.Error(c, "id类型错误", "/admin/manager")
+		return
+	}
+	manager := models.Manager{Id: id}
+	models.DB.Delete(&manager)
+	con.Success(c, "删除成功", "/admin/manager")
 }
