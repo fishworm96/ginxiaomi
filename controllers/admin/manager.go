@@ -84,9 +84,43 @@ func (con ManagerController) Edit(c *gin.Context) {
 	
 	c.HTML(http.StatusOK, "admin/manager/edit.html", gin.H{
 		"manager": managerList,
-		"RoleList": roleList,
+		"roleList": roleList,
 	})
 }
+
+func (con ManagerController) DoEdit(c *gin.Context) {
+	id, idErr := models.Int(c.PostForm("id"))
+	if idErr != nil {
+		con.Error(c, "id类型错误", "/admin/manager")
+		return
+	}
+	roleId, roleIdErr := models.Int(c.PostForm("role_id"))
+	if roleIdErr != nil {
+		con.Error(c, "角色id类型错误", "/admin/manager")
+		return
+	}
+	username := strings.Trim(c.PostForm("username"), " ")
+	password := strings.Trim(c.PostForm("password"), " ")
+	mobile := strings.Trim(c.PostForm("mobile"), " ")
+	email := strings.Trim(c.PostForm("email"), " ")
+
+	managerList := models.Manager{Id: id}
+	models.DB.Find(&managerList)
+	managerList.Username = username
+	managerList.Mobile = mobile
+	managerList.Email = email
+	managerList.RoleId = roleId
+	if password != "" {
+		if len(password) < 6 {
+			con.Error(c, "密码长度不能小于6位", "/admin/manager/edit?id=" + models.String(id))
+			return
+		}
+		managerList.Password = password
+	}
+	models.DB.Save(&managerList)
+	con.Success(c, "修改成功", "/admin/manager")
+}
+
 func (con ManagerController) Delete(c *gin.Context) {
 	c.String(http.StatusOK, "-add--文章-")
 }
