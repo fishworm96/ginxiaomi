@@ -77,10 +77,58 @@ func (con RoleController) DoEdit(c *gin.Context) {
 	role.Description = description
 	roleErr := models.DB.Save(&role).Error
 	if roleErr != nil {
-		con.Error(c, "修改数据失败", "/admin/role/edit?id=" + models.String(id))
+		con.Error(c, "修改数据失败", "/admin/role/edit?id="+models.String(id))
 	} else {
-		con.Success(c, "修改数据成功", "/admin/role/edit?id=" + models.String(id))
+		con.Success(c, "修改数据成功", "/admin/role/edit?id="+models.String(id))
 	}
+}
+
+func (con RoleController) Auth(c *gin.Context) {
+	id, _ := models.Int(c.Query("id"))
+	accessList := []models.Access{}
+	models.DB.Where("module_id = ?", 0).Preload("AccessItem").Find(&accessList)
+	// 获取有权限的id
+	roleAccess := []models.RoleAccess{}
+	models.DB.Where("role_id = ?", id).Find(&roleAccess)
+	// 定义map保存有的id
+	roleAccessMap := make(map[int]int)
+	for _, v := range roleAccess {
+		roleAccessMap[v.AccessId] = v.AccessId
+	}
+	// 先判断父级是否有id
+	for i := 0; i < len(accessList); i++ {
+		if _, ok := roleAccessMap[accessList[i].Id]; ok {
+			accessList[i].Checked = true
+		}
+		// 判断子级是否有id
+		for j := 0; j < len(accessList[i].AccessItem); j++ {
+			if _, ok := roleAccessMap[accessList[i].AccessItem[j].Id]; ok {
+				accessList[i].AccessItem[j].Checked = true
+			}
+		}
+	}
+	c.HTML(http.StatusOK, "admin/role/auth.html", gin.H{
+		"roleId": id,
+		"accessList": accessList,
+	})
+}
+
+func (con RoleController) DoAuth(c *gin.Context) {
+	roleId, err := models.Int(c.PostForm("role_id"))
+	if err != nil {
+		con.Error(c, "参数错误", "/admin/role")
+		return
+	}
+	accessIds := c.PostFormArray("access_node[]")
+	roleAccess := models.RoleAccess{}
+	models.DB.Where("role_id=?", roleId).Delete(&roleAccess)
+	for _, v := range accessIds {
+		roleAccess.RoleId = roleId
+		accessId, _ := models.Int(v)
+		roleAccess.AccessId = accessId
+		models.DB.Create(&roleAccess)
+	}
+	con.Success(c, "修改成功", "/admin/role")
 }
 
 func (con RoleController) Delete(c *gin.Context) {
@@ -90,6 +138,6 @@ func (con RoleController) Delete(c *gin.Context) {
 	} else {
 		role := models.Role{Id: id}
 		models.DB.Delete(&role)
-			con.Error(c, "删除成功", "/admin/role")
+		con.Success(c, "删除成功", "/admin/role")
 	}
 }
