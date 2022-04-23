@@ -36,16 +36,16 @@ func (con MainController) Index(c *gin.Context) {
 		}
 
 		// 循环遍历所有的权限数据，判断当前权限的id是否在角色权限的Map对象中，如果是的话给当前数据加入checked属性
-		// for i := 0; i < len(accessList); i++ {
-		// 	if _, ok := roleAccessMap[accessList[i].Id]; ok {
-		// 		accessList[i].Checked = true
-		// 		for j := 0; j < len(accessList[i].AccessItem); j++ {
-		// 			if _, ok := roleAccessMap[accessList[i].AccessItem[j].Id]; ok {
-		// 				accessList[i].AccessItem[j].Checked = true
-		// 			}
-		// 		}
-		// 	}
-		// }
+		for i := 0; i < len(accessList); i++ {
+			if _, ok := roleAccessMap[accessList[i].Id]; ok {
+				accessList[i].Checked = true
+				for j := 0; j < len(accessList[i].AccessItem); j++ {
+					if _, ok := roleAccessMap[accessList[i].AccessItem[j].Id]; ok {
+						accessList[i].AccessItem[j].Checked = true
+					}
+				}
+			}
+		}
 
 		fmt.Printf("%#v", accessList)
 		c.HTML(http.StatusOK, "admin/main/index.html", gin.H{
