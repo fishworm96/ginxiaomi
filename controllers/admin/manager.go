@@ -81,9 +81,9 @@ func (con ManagerController) Edit(c *gin.Context) {
 
 	roleList := []models.Role{}
 	models.DB.Find(&roleList)
-	
+
 	c.HTML(http.StatusOK, "admin/manager/edit.html", gin.H{
-		"manager": managerList,
+		"manager":  managerList,
 		"roleList": roleList,
 	})
 }
@@ -112,7 +112,7 @@ func (con ManagerController) DoEdit(c *gin.Context) {
 	managerList.RoleId = roleId
 	if password != "" {
 		if len(password) < 6 {
-			con.Error(c, "密码长度不能小于6位", "/admin/manager/edit?id=" + models.String(id))
+			con.Error(c, "密码长度不能小于6位", "/admin/manager/edit?id="+models.String(id))
 			return
 		}
 		managerList.Password = password
