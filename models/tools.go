@@ -2,10 +2,15 @@ package models
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"io"
+	"os"
+	"path"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 //时间戳转换成日期
@@ -58,4 +63,44 @@ func Int(str string) (int, error) {
 func String(n int) string {
 	str := strconv.Itoa(n)
 	return str
+}
+
+// 上传图片
+func UploadImg(c *gin.Context, picName string) (string, error) {
+	// 获取上传文件
+	file, err := c.FormFile(picName)
+	if err != nil {
+		return "", err
+	}
+
+	// 获取后缀名，判断类型是否正确
+	extName := path.Ext(file.Filename)
+	allowExtMap := map[string]bool{
+		".jpg": true,
+		".png": true,
+		".gif": true,
+		".jpeg": true,
+	}
+
+	if _, ok := allowExtMap[extName]; !ok {
+		return "", errors.New("文件后缀名不合法")
+	}
+
+	// 创建图片目录
+	day := GetDay()
+	dir := "./static/upload" + day
+
+	err1 := os.MkdirAll(dir, 0666)
+	if err1 != nil {
+		fmt.Println(err1)
+		return "", err1
+	}
+
+	// 生成文件名称和文件保存的目录
+	fileName := strconv.FormatInt(GetUnix(), 10) + extName
+
+	// 执行上传
+	dst := path.Join(dir, fileName)
+	c.SaveUploadedFile(file, dst)
+	return dst, nil
 }
