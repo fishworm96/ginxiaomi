@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type MainController struct{}
@@ -25,7 +26,9 @@ func (con MainController) Index(c *gin.Context) {
 
 		// 获取所有的权限
 		accessList := []models.Access{}
-		models.DB.Where("module_id=?", 0).Preload("AccessItem").Find(&accessList)
+		models.DB.Where("module_id=?", 0).Preload("AccessItem", func(db *gorm.DB) *gorm.DB {
+			return db.Order("access.sort DESC")
+		}).Order("sort DESC").Find(&accessList)
 
 		// 获取当前角色拥有的权限，并把权限id放在一个map对象里面
 		roleAccess := []models.RoleAccess{}
@@ -49,9 +52,9 @@ func (con MainController) Index(c *gin.Context) {
 
 		fmt.Printf("%#v", accessList)
 		c.HTML(http.StatusOK, "admin/main/index.html", gin.H{
-			"username": userinfoStruct[0].Username,
+			"username":   userinfoStruct[0].Username,
 			"accessList": accessList,
-			"isSuper": userinfoStruct[0].IsSuper,
+			"isSuper":    userinfoStruct[0].IsSuper,
 		})
 	} else {
 		c.Redirect(302, "/admin/login")
@@ -61,4 +64,28 @@ func (con MainController) Index(c *gin.Context) {
 
 func (con MainController) Welcome(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin/main/welcome.html", gin.H{})
+}
+
+func (con MainController) ChangeStatus(c *gin.Context) {
+	id, err := models.Int(c.Query("id"))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"msg":     "非法请求",
+		})
+	}
+	table := c.Query("table")
+	field := c.Query("field")
+	err1 := models.DB.Exec("update "+table+" set "+field+"=ABS("+field+"-1) where id = ?", id).Error
+	if err1 != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"msg":     "修改失败",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"msg":     "修改成功",
+		})
+	}
 }
