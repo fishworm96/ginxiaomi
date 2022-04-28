@@ -89,3 +89,29 @@ func (con MainController) ChangeStatus(c *gin.Context) {
 		})
 	}
 }
+
+func (con MainController) ChangeNum(c *gin.Context) {
+	id, err := models.Int(c.Query("id"))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H {
+			"success": false,
+			"msg": "id错误",
+		})
+		return
+	}
+	table := c.Query("table")
+	field := c.Query("field")
+	num := c.Query("num")
+	err1 := models.DB.Exec("update "+table+" set "+field+"="+num+" where id=?", id).Error
+	if err1 != nil {
+		c.JSON(http.StatusOK, gin.H {
+			"success": false,
+			"msg": "修改失败",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H {
+			"success": true,
+			"msg": "修改成功",
+		})
+	}
+}
