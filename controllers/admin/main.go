@@ -2,7 +2,6 @@ package admin
 
 import (
 	"encoding/json"
-	"fmt"
 	"ginxiaomi/models"
 	"net/http"
 
@@ -50,7 +49,6 @@ func (con MainController) Index(c *gin.Context) {
 			}
 		}
 
-		fmt.Printf("%#v", accessList)
 		c.HTML(http.StatusOK, "admin/main/index.html", gin.H{
 			"username":   userinfoStruct[0].Username,
 			"accessList": accessList,
