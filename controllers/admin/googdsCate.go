@@ -60,6 +60,7 @@ func (con GoodsCateController) DoAdd(c *gin.Context) {
 		Sort:        sort,
 		Status:      status,
 		CateImg:     cateImgDir,
+		AddTime: int(models.GetUnix()),
 	}
 
 	err := models.DB.Create(&goodsCate).Error
