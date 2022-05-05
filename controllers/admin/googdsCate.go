@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"ginxiaomi/models"
 	"net/http"
 
@@ -22,7 +23,7 @@ func (con GoodsCateController) Index(c *gin.Context) {
 func (con GoodsCateController) Add(c *gin.Context) {
 	goodsCateList := []models.GoodsCate{}
 	models.DB.Where("pid = 0").Find(&goodsCateList)
-	c.HTML(http.StatusOK, "admin/goodsCate/add.html", gin.H {
+	c.HTML(http.StatusOK, "admin/goodsCate/add.html", gin.H{
 		"goodsCateList": goodsCateList,
 	})
 }
@@ -32,33 +33,34 @@ func (con GoodsCateController) DoAdd(c *gin.Context) {
 	pid, err1 := models.Int(c.PostForm("pid"))
 	link := c.PostForm("link")
 	template := c.PostForm("template")
-	subTitle := c.PostForm("subTitle")
+	subTitle := c.PostForm("sub_title")
 	keywords := c.PostForm("keywords")
 	description := c.PostForm("description")
 	sort, err2 := models.Int(c.PostForm("sort"))
 	status, err3 := models.Int(c.PostForm("status"))
 
-	if err1 != nil || err2 != nil {
+	if err1 != nil || err3 != nil {
 		con.Error(c, "参数错误", "/admin/goodsCate")
 		return
 	}
-	if err3 != nil {
+	if err2 != nil {
 		con.Error(c, "sort类型错误", "/admin/goodsCate")
+		return
 	}
 
 	cateImgDir, _ := models.UploadImg(c, "cate_img")
 
 	goodsCate := models.GoodsCate{
-		Title: title,
-		Pid: pid,
-		Link: link,
-		Template: template,
-		SubTitle: subTitle,
-		Keywords: keywords,
+		Title:       title,
+		Pid:         pid,
+		Link:        link,
+		Template:    template,
+		SubTitle:    subTitle,
+		Keywords:    keywords,
 		Description: description,
-		Sort: sort,
-		Status: status,
-		CateImg: cateImgDir,
+		Sort:        sort,
+		Status:      status,
+		CateImg:     cateImgDir,
 	}
 
 	err := models.DB.Create(&goodsCate).Error
@@ -70,9 +72,68 @@ func (con GoodsCateController) DoAdd(c *gin.Context) {
 }
 
 func (con GoodsCateController) Edit(c *gin.Context) {
-	c.HTML(http.StatusOK, "admin/goodsCate/edit.html", gin.H {})
+	id, err := models.Int(c.Query("id"))
+	if err != nil {
+		con.Error(c, "id类型错误", "/admin/goodsCate")
+		return
+	}
+	goodsCate := models.GoodsCate{Id: id}
+	models.DB.Find(&goodsCate)
+
+	goodsCateList := []models.GoodsCate{}
+	models.DB.Find(&goodsCateList)
+	c.HTML(http.StatusOK, "admin/goodsCate/edit.html", gin.H{
+		"goodsCate":     goodsCate,
+		"goodsCateList": goodsCateList,
+	})
+}
+
+func (con GoodsCateController) DoEdit(c *gin.Context) {
+	id, err := models.Int(c.PostForm("id"))
+	if err != nil {
+		con.Error(c, "id类型错误", "/admin/goodsCate")
+		return
+	}
+	title := c.PostForm("title")
+	pid, err1 := models.Int(c.PostForm("pid"))
+	link := c.PostForm("link")
+	template := c.PostForm("template")
+	subTitle := c.PostForm("sub_title")
+	keywords := c.PostForm("keywords")
+	description := c.PostForm("description")
+	sort, err2 := models.Int(c.PostForm("sort"))
+	status, err3 := models.Int(c.PostForm("status"))
+
+	if err1 != nil || err3 != nil {
+		con.Error(c, "参数错误", "/admin/goodsCate")
+		return
+	}
+	if err2 != nil {
+		con.Error(c, "sort类型错误", "/admin/goodsCate")
+		return
+	}
+
+	cateImgDir, _ := models.UploadImg(c, "cate_img")
+
+	goodsCate := models.GoodsCate{Id: id}
+	goodsCate.Title = title
+	goodsCate.Pid = pid
+	goodsCate.Link = link
+	goodsCate.Template = template
+	goodsCate.SubTitle = subTitle
+	goodsCate.Keywords = keywords
+	goodsCate.Description = description
+	goodsCate.Sort = sort
+	goodsCate.Status = status
+	goodsCate.CateImg = cateImgDir
+	err4 := models.DB.Save(&goodsCate).Error
+	if err4 != nil {
+		con.Error(c, "修改失败", "/admin/goodsCate/edit?id="+models.String(id))
+		return
+	}
+	con.Success(c, "修改成功", "/admin/goodsCate")
 }
 
 func (con GoodsCateController) Delete(c *gin.Context) {
-	con.Success(c, "删除成功" ,"/admin/goodsCate")
+	con.Success(c, "删除成功", "/admin/goodsCate")
 }
