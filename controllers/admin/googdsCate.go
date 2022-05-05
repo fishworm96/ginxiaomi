@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"ginxiaomi/models"
 	"net/http"
 
@@ -135,5 +134,22 @@ func (con GoodsCateController) DoEdit(c *gin.Context) {
 }
 
 func (con GoodsCateController) Delete(c *gin.Context) {
+	id, err := models.Int(c.Query("id"))
+	if err != nil {
+		con.Error(c, "id类型错误", "/admin/goodsCate")
+	}
+	goodsCate := models.GoodsCate{Id: id}
+	if goodsCate.Pid == 0 {
+		goodsCateList := []models.GoodsCate{}
+		models.DB.Where("pid = ?", goodsCate.Id).Find(&goodsCateList)
+		if len(goodsCateList) > 0 {
+			con.Error(c, "请先删除子模块", "/admin/goodsCate")
+			return
+		} else {
+			models.DB.Delete(&goodsCate)
+		}
+	} else {
+		models.DB.Delete(&goodsCate)
+	}
 	con.Success(c, "删除成功", "/admin/goodsCate")
 }
