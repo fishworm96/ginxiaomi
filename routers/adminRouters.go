@@ -67,5 +67,6 @@ func AdminRoutersInit(r *gin.Engine) {
 
 		adminRouters.GET("/goodsTypeAttribute", admin.GoodsCateAttributeController{}.Index)
 		adminRouters.GET("/goodsTypeAttribute/add", admin.GoodsCateAttributeController{}.Add)
+		adminRouters.POST("/goodsTypeAttribute/doAdd", admin.GoodsCateAttributeController{}.DoAdd)
 	}
 }

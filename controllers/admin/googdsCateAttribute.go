@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"ginxiaomi/models"
 	"net/http"
 
@@ -34,9 +35,49 @@ func (con GoodsCateAttributeController) Index(c *gin.Context) {
 }
 
 func (con GoodsCateAttributeController) Add(c *gin.Context) {
-	goodsCateAttributeList := []models.GoodsTypeAttribute{}
-	models.DB.Where("pid = 0").Find(&goodsCateAttributeList)
+	cateId, err := models.Int(c.Query("cate_id"))
+	if err != nil {
+		con.Error(c, "id类型错误", "/admin/goodsType")
+		return
+	}
+	goodsTypeList := []models.GoodsType{}
+	models.DB.Where("id = ?", cateId).Find(&goodsTypeList)
+	fmt.Println(goodsTypeList)
 	c.HTML(http.StatusOK, "admin/goodsTypeAttribute/add.html", gin.H{
-		"goodsCateAttributeList": goodsCateAttributeList,
+		"goodsTypeList": goodsTypeList,
 	})
+}
+
+func (con GoodsCateAttributeController) DoAdd(c *gin.Context) {
+	id, err1 := models.Int(c.PostForm("cate_id"))
+	if err1 != nil {
+		con.Error(c, "id类型错误",  "/admin/goodsTypeAttribute/add?cate_id="+ models.String(id))
+		return
+	}
+	title := c.PostForm("title")
+	attrType, err2 := models.Int(c.PostForm("attr_type"))
+	if err2 != nil {
+		con.Error(c, "attr_type类型错误",  "/admin/goodsTypeAttribute/add?cate_id="+ models.String(id))
+		return
+	}
+	attrValue := c.PostForm("attr_value")
+	sort, err3 := models.Int(c.PostForm("sort"))
+	if err3 != nil {
+		con.Error(c, "sort类型错误", "/admin/goodsTypeAttribute/add?cate_id="+ models.String(id))
+		return
+	}
+	goodsTypeAttribute := models.GoodsTypeAttribute{
+		CateId: id,
+		Title: title,
+		AttrType: attrType,
+		AttrValue: attrValue,
+		Sort: sort,
+		AddTime: int(models.GetUnix()),
+	}
+	err4 := models.DB.Create(&goodsTypeAttribute).Error
+	if err4 != nil {
+		con.Error(c, "添加失败", "/admin/goodsTypeAttribute/add?cate_id="+ models.String(id))
+	} else {
+		con.Success(c, "创建成功", "/admin/goodsTypeAttribute?id="+ models.String(id))
+	}
 }
