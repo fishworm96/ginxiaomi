@@ -28,7 +28,6 @@ func AdminRoutersInit(r *gin.Engine) {
 		adminRouters.POST("/manager/doAdd", admin.ManagerController{}.DoAdd)
 		adminRouters.POST("/manager/doEdit", admin.ManagerController{}.DoEdit)
 
-
 		adminRouters.GET("/focus", admin.FocusController{}.Index)
 		adminRouters.GET("/focus/add", admin.FocusController{}.Add)
 		adminRouters.GET("/focus/edit", admin.FocusController{}.Edit)
@@ -58,12 +57,15 @@ func AdminRoutersInit(r *gin.Engine) {
 		adminRouters.GET("/goodsCate/delete", admin.GoodsCateController{}.Delete)
 		adminRouters.POST("/goodsCate/doAdd", admin.GoodsCateController{}.DoAdd)
 		adminRouters.POST("/goodsCate/doEdit", admin.GoodsCateController{}.DoEdit)
-		
+
 		adminRouters.GET("/goodsType", admin.GoodsTypeController{}.Index)
 		adminRouters.GET("/goodsType/add", admin.GoodsTypeController{}.Add)
 		adminRouters.GET("/goodsType/edit", admin.GoodsTypeController{}.Edit)
 		adminRouters.GET("/goodsType/delete", admin.GoodsTypeController{}.Delete)
 		adminRouters.POST("/goodsType/doAdd", admin.GoodsTypeController{}.DoAdd)
 		adminRouters.POST("/goodsType/doEdit", admin.GoodsTypeController{}.DoEdit)
+
+		adminRouters.GET("/goodsTypeAttribute", admin.GoodsCateAttributeController{}.Index)
+		adminRouters.GET("/goodsTypeAttribute/add", admin.GoodsCateAttributeController{}.Add)
 	}
 }
