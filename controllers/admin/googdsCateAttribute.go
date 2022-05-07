@@ -136,14 +136,14 @@ func (con GoodsTypeAttributeController) DoEdit(c *gin.Context) {
 }
 
 func (con GoodsTypeAttributeController) Delete(c *gin.Context) {
-	id, err := models.Int(c.Query("id"))
-	cateId, err1 := models.Int(c.Query("cate_id"))
-	if err != nil || err1 != nil {
-		con.Error(c, "id类型错误", "/admin/goodsType")
-	}else {
-		goodsTypeAttribute := models.GoodsTypeAttribute{Id: id}
-		models.DB.Delete(&goodsTypeAttribute)
-		con.Success(c, "删除成功", "/admin/goodsTypeAttribute?id="+models.String(cateId))
+	id, err1 := models.Int(c.Query("id"))
+	cateId, err2 := models.Int(c.Query("cate_id"))
+	if err1 != nil || err2 != nil {
+		con.Error(c, "传入参数错误", "/admin/goodsType")
+	} else {
+		goodsTypeAttr := models.GoodsTypeAttribute{Id: id}
+		models.DB.Delete(&goodsTypeAttr)
+		con.Success(c, "删除数据成功", "/admin/goodsTypeAttribute?id="+models.String(cateId))
 	}
 
 }
