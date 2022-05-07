@@ -90,6 +90,12 @@ func (con GoodsTypeController) Delete(c *gin.Context) {
 	id, err := models.Int(c.Query("id"))
 	if err != nil {
 		con.Error(c, "传入数据错误", "/admin/goodsType")
+		return
+	}
+	goodsTypeAttribute := []models.GoodsTypeAttribute{}
+	models.DB.Where("cate_id = ?", id).Find(&goodsTypeAttribute)
+	if len(goodsTypeAttribute) > 0 {
+		con.Error(c, "请先删除子模块", "/admin/goodsType")
 	} else {
 		goodsType := models.GoodsType{Id: id}
 		models.DB.Delete(&goodsType)
