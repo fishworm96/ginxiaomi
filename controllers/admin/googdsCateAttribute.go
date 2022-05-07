@@ -8,11 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GoodsCateAttributeController struct {
+type GoodsTypeAttributeController struct {
 	BaseController
 }
 
-func (con GoodsCateAttributeController) Index(c *gin.Context) {
+func (con GoodsTypeAttributeController) Index(c *gin.Context) {
 	cateId, err := models.Int(c.Query("id"))
 	if err != nil {
 		con.Error(c, "传入的参数不正确", "/admin/goodsType")
@@ -34,7 +34,7 @@ func (con GoodsCateAttributeController) Index(c *gin.Context) {
 
 }
 
-func (con GoodsCateAttributeController) Add(c *gin.Context) {
+func (con GoodsTypeAttributeController) Add(c *gin.Context) {
 	cateId, err := models.Int(c.Query("cate_id"))
 	if err != nil {
 		con.Error(c, "id类型错误", "/admin/goodsType")
@@ -48,7 +48,7 @@ func (con GoodsCateAttributeController) Add(c *gin.Context) {
 	})
 }
 
-func (con GoodsCateAttributeController) DoAdd(c *gin.Context) {
+func (con GoodsTypeAttributeController) DoAdd(c *gin.Context) {
 	id, err1 := models.Int(c.PostForm("cate_id"))
 	if err1 != nil {
 		con.Error(c, "id类型错误",  "/admin/goodsTypeAttribute/add?cate_id="+ models.String(id))
@@ -80,4 +80,70 @@ func (con GoodsCateAttributeController) DoAdd(c *gin.Context) {
 	} else {
 		con.Success(c, "创建成功", "/admin/goodsTypeAttribute?id="+ models.String(id))
 	}
+}
+
+func (con GoodsTypeAttributeController) Edit(c *gin.Context) {
+	id, err1 := models.Int(c.Query("id"))
+	if err1 != nil {
+		con.Error(c, "id类型错误", "/admin/goodsType")
+		return
+	}
+	goodsTypeAttribute := models.GoodsTypeAttribute{Id: id}
+	models.DB.Find(&goodsTypeAttribute)
+	goodsTypeList := []models.GoodsType{}
+	models.DB.Find(&goodsTypeList)
+	c.HTML(http.StatusOK, "admin/goodsTypeAttribute/edit.html", gin.H {
+		"goodsTypeAttribute": goodsTypeAttribute,
+		"goodsTypeList": goodsTypeList,
+	})
+}
+
+func (con GoodsTypeAttributeController) DoEdit(c *gin.Context) {
+	id, err1 := models.Int(c.PostForm("id"))
+	if err1 != nil {
+		con.Error(c, "id类型错误",  "/admin/goodsTypeAttribute")
+		return
+	}
+	cateId, err2 := models.Int(c.PostForm("cate_id"))
+	if err2 != nil {
+		con.Error(c, "cateId类型错误", "/admin/goodsTypeAttribute/edit?id="+models.String(id))
+	}
+	title := c.PostForm("title")
+	attrType, err3 := models.Int(c.PostForm("attr_type"))
+	if err3 != nil {
+		con.Error(c, "attr_type类型错误",  "/admin/goodsTypeAttribute/edit?id="+ models.String(id))
+		return
+	}
+	attrValue := c.PostForm("attr_value")
+	sort, err4 := models.Int(c.PostForm("sort"))
+	if err4 != nil {
+		con.Error(c, "sort类型错误", "/admin/goodsTypeAttribute/add?cate_id="+ models.String(id))
+		return
+	}
+	goodsTypeAttribute := models.GoodsTypeAttribute{Id: id}
+	goodsTypeAttribute.Title = title
+	goodsTypeAttribute.CateId = cateId
+	goodsTypeAttribute.AttrType = attrType
+	goodsTypeAttribute.AttrValue = attrValue
+	goodsTypeAttribute.Sort = sort
+	goodsTypeAttribute.AddTime = int(models.GetUnix())
+	err5 := models.DB.Save(&goodsTypeAttribute).Error
+	if err5 != nil {
+		con.Error(c, "修改失败", "/admin/goodsTypeAttribute/edit?cate_id="+ models.String(id))
+	} else {
+		con.Success(c, "修改成功", "/admin/goodsTypeAttribute?id="+ models.String(cateId))
+	}
+}
+
+func (con GoodsTypeAttributeController) Delete(c *gin.Context) {
+	id, err := models.Int(c.Query("id"))
+	cateId, err1 := models.Int(c.Query("cate_id"))
+	if err != nil || err1 != nil {
+		con.Error(c, "id类型错误", "/admin/goodsType")
+	}else {
+		goodsTypeAttribute := models.GoodsTypeAttribute{Id: id}
+		models.DB.Delete(&goodsTypeAttribute)
+		con.Success(c, "删除成功", "/admin/goodsTypeAttribute?id="+models.String(cateId))
+	}
+
 }
