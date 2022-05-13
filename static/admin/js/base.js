@@ -1,6 +1,9 @@
 
 $(function () {
 	baseApp.init();
+	$(window).resize(function(){
+		baseApp.resizeIframe();
+	})
 })
 var baseApp = {
 	init: function () {
