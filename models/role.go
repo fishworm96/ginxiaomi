@@ -1,11 +1,11 @@
 package models
 
 type Role struct {
-	Id int
-	Title string
+	Id          int
+	Title       string
 	Description string
-	Status int
-	AddTime int
+	Status      int
+	AddTime     int
 }
 
 func (Role) TableName() string {

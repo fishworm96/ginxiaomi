@@ -2,7 +2,7 @@ package models
 
 type RoleAccess struct {
 	AccessId int
-	RoleId int
+	RoleId   int
 }
 
 func (RoleAccess) TableName() string {
